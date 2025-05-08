@@ -1,36 +1,53 @@
-import { szenvedoMondatok } from "./angol.js";
-
-export default class Kerdes {
-    #obj = {}
+export default class TesztKerdes {
+    #obj;
     #szElem;
-    #buttonElem;
-  
-    constructor(obj, szElem) {
-      this.#obj = obj;
-      this.#szElem = szElem;
-  
-      this.megjelenit();
-      this.#buttonElem = this.#szElem.querySelector(".kerdes:last-child button");
-      this.esemenykezeleo();
+    #index;
+
+    constructor(obj, szElem, index) {
+        this.#obj = obj;
+        this.#szElem = szElem;
+        this.#index = index;
+        this.megjelenit();
+        this.esemenykezelo();
     }
-  
-    esemenykezeleo() {
-      this.#buttonElem.addEventListener("click", () => {
-        window.dispatchEvent(new CustomEvent("kivalaszt", { detail: this.#obj }));
-      });
-    }
+
+    
     megjelenit() {
         let html = `
-          <div class="kerdes">
-            <p>${this.#obj.mondat}</p>
-            <p>${this.#obj.valasztas[0]}</p>
-            <button>Kiválaszt</button>
-          </div>
-        `
-    this.#szElem.insertAdjacentHTML("beforeend", html);
-  }
-  
-  kever() {
+        <div class="tesztkerdes">
+            <p class="mondat">${this.#obj.mondat}</p>
+            <div class="valaszok">
+                ${this.#obj.valasztas.map((valasz, i) => {
+                    return `<button data-index="${i}"><p class="valasz">${valasz}</p></button>`;
+                }).join('')}
+            </div>
+        </div>
+        `;
+        this.#szElem.insertAdjacentHTML("beforeend", html);
+    }
 
-  }
+    esemenykezelo() {
+        const utolsoTesztElem = this.#szElem.querySelectorAll(".tesztkerdes");
+        const aktualisElem = utolsoTesztElem[utolsoTesztElem.length - 1];
+        const valaszok = aktualisElem.querySelectorAll(".valasz");
+
+       
+        valaszok.forEach((valaszElem) => {
+            valaszElem.addEventListener("click", (event) => {
+                const valasztottIndex = event.target.closest('button').dataset.index;
+                
+                const helyes = this.#obj.valasztas[0] === this.#obj.valasztas[valasztottIndex];
+                this.ertekeles(helyes);
+            });
+        });
+    }
+
+    
+    ertekeles(helyes) {
+        if (helyes) {
+            alert("Helyes válasz!");
+        } else {
+            alert("Helytelen válasz!");
+        }
+    }
 }
